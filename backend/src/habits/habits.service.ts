@@ -1,26 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Habit, HabitDocument } from '../schemas/habit.schema';
 import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
 
 @Injectable()
 export class HabitsService {
+  constructor(
+    @InjectModel(Habit.name) private habitModel: Model<HabitDocument>,
+  ) {}
+
   create(createHabitDto: CreateHabitDto) {
-    return 'This action adds a new habit';
+    const created = new this.habitModel(createHabitDto);
+    return created.save();
   }
 
   findAll() {
-    return `This action returns all habits`;
+    return this.habitModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} habit`;
+  async findOne(id: string) {
+    const habit = await this.habitModel.findById(id).exec();
+    if (!habit) throw new NotFoundException(`Hábito ${id} no encontrado`);
+    return habit;
   }
 
-  update(id: number, updateHabitDto: UpdateHabitDto) {
-    return `This action updates a #${id} habit`;
+  async update(id: string, updateHabitDto: UpdateHabitDto) {
+    const habit = await this.habitModel
+      .findByIdAndUpdate(id, updateHabitDto, { new: true })
+      .exec();
+    if (!habit) throw new NotFoundException(`Hábito ${id} no encontrado`);
+    return habit;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} habit`;
+  async remove(id: string) {
+    const habit = await this.habitModel.findByIdAndDelete(id).exec();
+    if (!habit) throw new NotFoundException(`Hábito ${id} no encontrado`);
+    return habit;
   }
 }
