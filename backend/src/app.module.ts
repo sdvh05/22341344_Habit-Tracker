@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { HabitsModule } from './habits/habits.module';
 import { RecordsModule } from './records/records.module';
 import { AuthModule } from './auth/auth.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthModule } from './auth/auth.module';
     HabitsModule,
     RecordsModule,
     AuthModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
