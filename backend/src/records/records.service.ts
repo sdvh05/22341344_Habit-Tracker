@@ -11,7 +11,7 @@ export class RecordsService {
     @InjectModel(HabitRecord.name) private recordModel: Model<RecordDocument>,
   ) {}
 
-  create(createRecordDto: CreateRecordDto) {
+  create(createRecordDto: CreateRecordDto & { usuario: string }) {
     const created = new this.recordModel(createRecordDto);
     return created.save();
   }

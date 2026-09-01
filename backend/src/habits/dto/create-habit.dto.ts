@@ -3,7 +3,7 @@ import {
   IsDateString,
   IsEnum,
   IsInt,
-  IsMongoId,
+  //IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -41,6 +41,6 @@ export class CreateHabitDto {
   @IsBoolean()
   activo?: boolean;
 
-  @IsMongoId()
-  usuario: string;
+  // @IsMongoId()
+  //usuario: string;
 }

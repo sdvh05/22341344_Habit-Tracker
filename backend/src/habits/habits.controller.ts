@@ -6,18 +6,25 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { HabitsService } from './habits.service';
 import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('habits')
 export class HabitsController {
   constructor(private readonly habitsService: HabitsService) {}
 
   @Post()
-  create(@Body() createHabitDto: CreateHabitDto) {
-    return this.habitsService.create(createHabitDto);
+  create(@Body() createHabitDto: CreateHabitDto, @Req() req: any) {
+    return this.habitsService.create({
+      ...createHabitDto,
+      usuario: req.user.userId,
+    });
   }
 
   @Get()

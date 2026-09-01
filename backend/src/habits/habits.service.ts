@@ -11,7 +11,7 @@ export class HabitsService {
     @InjectModel(Habit.name) private habitModel: Model<HabitDocument>,
   ) {}
 
-  create(createHabitDto: CreateHabitDto) {
+  create(createHabitDto: CreateHabitDto & { usuario: string }) {
     const created = new this.habitModel(createHabitDto);
     return created.save();
   }
