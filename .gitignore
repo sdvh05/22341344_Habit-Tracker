@@ -1,0 +1,29 @@
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Next.js (frontend)
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+
+# NestJS (backend)
+backend/dist/
+
+# Variables de entorno
+.env
+.env.local
+**/.env
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor / SO
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Coverage / tests
+coverage/
