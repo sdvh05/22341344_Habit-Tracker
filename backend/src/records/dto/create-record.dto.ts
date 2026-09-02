@@ -9,8 +9,8 @@ export class CreateRecordDto {
   @IsMongoId()
   habito: string;
 
-  @IsMongoId()
-  usuario: string;
+  //@IsMongoId()
+  //usuario: string;
 
   @IsDateString()
   fecha: string;
