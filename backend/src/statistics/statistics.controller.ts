@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { StatisticsService } from './statistics.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -20,7 +20,14 @@ export class StatisticsController {
   }
 
   @Get('monthly')
-  getMonthly(@Req() req: any) {
-    return this.statisticsService.getMonthly(req.user.userId);
+  getMonthly(
+    @Req() req: any,
+    @Query('year') year?: string,
+    @Query('month') month?: string,
+  ) {
+    const now = new Date();
+    const y = year ? parseInt(year, 10) : now.getFullYear();
+    const m = month ? parseInt(month, 10) : now.getMonth() + 1;
+    return this.statisticsService.getMonthly(req.user.userId, y, m);
   }
 }

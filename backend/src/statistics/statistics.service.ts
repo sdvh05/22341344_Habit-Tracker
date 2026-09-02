@@ -62,23 +62,27 @@ export class StatisticsService {
     };
   }
 
+  async getMonthly(userId: string, year: number, month: number) {
+    const from = new Date(year, month - 1, 1);
+    const to = new Date(year, month, 1);
+    return this.getRangeCounts(userId, from, to);
+  }
+
   async getWeekly(userId: string) {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-    return this.getRangeCounts(userId, sevenDaysAgo);
+    return this.getRangeCounts(
+      userId,
+      sevenDaysAgo,
+      new Date(Date.now() + 86400000),
+    );
   }
 
-  async getMonthly(userId: string) {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
-    return this.getRangeCounts(userId, thirtyDaysAgo);
-  }
-
-  private async getRangeCounts(userId: string, from: Date) {
+  private async getRangeCounts(userId: string, from: Date, to: Date) {
     const records = await this.recordModel.find({
       usuario: userId,
       completado: true,
-      fecha: { $gte: from },
+      fecha: { $gte: from, $lt: to },
     });
 
     const counts: Record<string, number> = {};
