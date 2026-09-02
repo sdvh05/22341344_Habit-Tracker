@@ -1,4 +1,4 @@
-import Image from "next/image";
+/*import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -66,4 +66,21 @@ export default function Home() {
       </main>
     </div>
   );
+}
+*/
+
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { isLoggedIn } from "../lib/api";
+
+export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push(isLoggedIn() ? "/dashboard" : "/login");
+  }, [router]);
+
+  return null;
 }
