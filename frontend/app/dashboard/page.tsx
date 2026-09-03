@@ -81,6 +81,9 @@ export default function DashboardPage() {
         else next.add(habitId);
         return next;
       });
+
+      const summaryData = await api.get("/statistics/summary");
+      setSummary(summaryData);
     } catch (err) {
       console.error(err);
     }
