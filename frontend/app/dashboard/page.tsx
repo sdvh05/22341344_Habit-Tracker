@@ -12,7 +12,8 @@ import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import { api, isLoggedIn } from "../../lib/api";
+//import { api, isLoggedIn } from "../../lib/api";
+import { api, isLoggedIn, todayLocal } from "../../lib/api";
 
 interface Habit {
   _id: string;
@@ -46,12 +47,19 @@ export default function DashboardPage() {
 
   async function loadData() {
     try {
-      const [summaryData, habitsData] = await Promise.all([
+      const [summaryData, habitsData, recordsData] = await Promise.all([
         api.get("/statistics/summary"),
         api.get("/habits"),
+        api.get("/records"),
       ]);
       setSummary(summaryData);
       setHabits(habitsData.filter((h: Habit) => h.activo));
+
+      const today = todayLocal();
+      const completedToday = recordsData
+        .filter((r: any) => r.fecha.slice(0, 10) === today && r.completado)
+        .map((r: any) => r.habito);
+      setCompletedIds(new Set(completedToday));
     } catch (err) {
       console.error(err);
     } finally {
@@ -64,7 +72,7 @@ export default function DashboardPage() {
     try {
       await api.post("/records", {
         habito: habitId,
-        fecha: new Date().toISOString().slice(0, 10),
+        fecha: todayLocal(),
         completado: !yaCompletado,
       });
       setCompletedIds((prev) => {

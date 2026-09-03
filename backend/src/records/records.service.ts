@@ -16,8 +16,13 @@ export class RecordsService {
     return created.save();
   }
 
-  findAll() {
-    return this.recordModel.find().exec();
+  //findAll() {
+  //  return this.recordModel.find().exec();
+  //}
+
+  findAll(userId?: string) {
+    const filter = userId ? { usuario: userId } : {};
+    return this.recordModel.find(filter).exec();
   }
 
   async findOne(id: string) {

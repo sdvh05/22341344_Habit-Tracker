@@ -30,8 +30,8 @@ export class RecordsController {
   }
 
   @Get()
-  findAll() {
-    return this.recordsService.findAll();
+  findAll(@Req() req: any) {
+    return this.recordsService.findAll(req.user.userId);
   }
 
   @Get(':id')

@@ -13,7 +13,8 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Alert from "@mui/material/Alert";
-import { api } from "../../../lib/api";
+//import { api } from "../../../lib/api";
+import { api, todayLocal } from "../../../lib/api";
 
 const categorias = [
   "Salud",
@@ -29,9 +30,7 @@ export default function NuevoHabitoPage() {
   const [descripcion, setDescripcion] = useState("");
   const [categoria, setCategoria] = useState("Salud");
   const [frecuencia, setFrecuencia] = useState("diaria");
-  const [fechaInicio, setFechaInicio] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [fechaInicio, setFechaInicio] = useState(todayLocal());
   const [fechaFin, setFechaFin] = useState("");
   const [activo, setActivo] = useState(true);
   const [error, setError] = useState("");
