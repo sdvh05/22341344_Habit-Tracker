@@ -43,7 +43,7 @@ export default function LoginPage() {
         p: 4,
       }}
     >
-      <Typography variant="h1" sx={{ mb: 3 }}>
+      <Typography variant="h1" sx={{ mb: 3, color: "#1A1A1A" }}>
         Iniciar sesión
       </Typography>
 
@@ -84,8 +84,11 @@ export default function LoginPage() {
         </Button>
       </Box>
 
-      <Typography variant="body2" sx={{ mt: 2 }}>
-        ¿No tienes cuenta? <Link href="/registro">Regístrate</Link>
+      <Typography variant="body2" sx={{ mt: 2, color: "#1A1A1A" }}>
+        ¿No tienes cuenta?{" "}
+        <Link href="/registro" style={{ color: "#236364", fontWeight: 600 }}>
+          Regístrate
+        </Link>
       </Typography>
     </Box>
   );
