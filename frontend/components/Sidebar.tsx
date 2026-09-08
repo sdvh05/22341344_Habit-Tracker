@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -14,6 +15,7 @@ import BarChartIcon from "@mui/icons-material/BarChartOutlined";
 import PersonIcon from "@mui/icons-material/PersonOutlineOutlined";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { api, isLoggedIn } from "../lib/api";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: <DashboardIcon /> },
@@ -23,6 +25,15 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [nombre, setNombre] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoggedIn()) return;
+    api
+      .get("/users/me")
+      .then((data) => setNombre(data.nombre))
+      .catch(() => setNombre(null));
+  }, []);
 
   return (
     <Box
@@ -104,7 +115,7 @@ export default function Sidebar() {
             <PersonIcon sx={{ color: "text.primary" }} />
           </Avatar>
           <Typography variant="body2" sx={{ color: "#FFFFFF" }}>
-            Mi perfil
+            {nombre ? `Perfil de ${nombre}` : "Mi perfil"}
           </Typography>
         </Box>
       </Link>
