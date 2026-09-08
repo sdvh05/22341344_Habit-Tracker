@@ -30,8 +30,8 @@ export class HabitsController {
   }
 
   @Get()
-  findAll() {
-    return this.habitsService.findAll();
+  findAll(@Req() req: any) {
+    return this.habitsService.findAll(req.user.userId);
   }
 
   @Get(':id')

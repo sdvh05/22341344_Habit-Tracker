@@ -16,8 +16,9 @@ export class HabitsService {
     return created.save();
   }
 
-  findAll() {
-    return this.habitModel.find().exec();
+  findAll(userId?: string) {
+    const filter = userId ? { usuario: userId } : {};
+    return this.habitModel.find(filter).exec();
   }
 
   async findOne(id: string) {

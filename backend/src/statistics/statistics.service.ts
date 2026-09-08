@@ -8,6 +8,13 @@ function toDateOnly(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
+function localDateString(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 @Injectable()
 export class StatisticsService {
   constructor(
@@ -21,7 +28,8 @@ export class StatisticsService {
       activo: true,
     });
 
-    const today = toDateOnly(new Date());
+    //const today = toDateOnly(new Date());
+    const today = localDateString(new Date());
     const todayRecords = await this.recordModel.find({
       usuario: userId,
       completado: true,
@@ -102,7 +110,7 @@ export class StatisticsService {
     let streak = 0;
     const cursor = new Date();
 
-    while (dateSet.has(toDateOnly(cursor))) {
+    while (dateSet.has(localDateString(cursor))) {
       streak++;
       cursor.setDate(cursor.getDate() - 1);
     }
