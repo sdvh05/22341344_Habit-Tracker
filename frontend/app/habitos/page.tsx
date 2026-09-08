@@ -19,6 +19,7 @@ import AddIcon from "@mui/icons-material/Add";
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/EditOutlined";
 import Link from "next/link";
 import { api, isLoggedIn } from "../../lib/api";
 
@@ -158,6 +159,11 @@ export default function ListaHabitosPage() {
                   )}
                 </TableCell>
                 <TableCell align="right">
+                  <Link href={`/habitos/${habit._id}/editar`}>
+                    <IconButton title="Editar">
+                      <EditIcon sx={{ color: "primary.main" }} />
+                    </IconButton>
+                  </Link>
                   <IconButton
                     onClick={() => toggleActivo(habit)}
                     title={habit.activo ? "Desactivar" : "Activar"}
