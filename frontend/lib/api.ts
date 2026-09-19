@@ -2,7 +2,8 @@ const API_URL = "http://localhost:3000";
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("token");
+  // return localStorage.getItem("token");
+  return sessionStorage.getItem("token");
 }
 
 async function request(path: string, options: RequestInit = {}) {
@@ -34,11 +35,13 @@ export const api = {
 };
 
 export function saveToken(token: string) {
-  localStorage.setItem("token", token);
+  // localStorage.setItem("token", token);
+  sessionStorage.setItem("token", token);
 }
 
 export function clearToken() {
-  localStorage.removeItem("token");
+  // localStorage.removeItem("token");
+  sessionStorage.removeItem("token");
 }
 
 export function isLoggedIn(): boolean {
