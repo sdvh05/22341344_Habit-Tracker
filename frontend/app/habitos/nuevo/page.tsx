@@ -12,9 +12,10 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import FormHelperText from "@mui/material/FormHelperText";
 import Alert from "@mui/material/Alert";
-//import { api } from "../../../lib/api";
 import { api, todayLocal } from "../../../lib/api";
+import { habitoSchema } from "../../../lib/schemas";
 
 const categorias = [
   "Salud",
@@ -23,6 +24,10 @@ const categorias = [
   "Bienestar",
   "Otro",
 ];
+
+type Errores = Partial<
+  Record<"nombre" | "categoria" | "fechaInicio" | "fechaFin", string>
+>;
 
 export default function NuevoHabitoPage() {
   const router = useRouter();
@@ -33,22 +38,40 @@ export default function NuevoHabitoPage() {
   const [fechaInicio, setFechaInicio] = useState(todayLocal());
   const [fechaFin, setFechaFin] = useState("");
   const [activo, setActivo] = useState(true);
+  const [errores, setErrores] = useState<Errores>({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const resultado = habitoSchema.safeParse({
+      nombre,
+      descripcion,
+      categoria,
+      frecuencia,
+      fechaInicio,
+      fechaFin,
+      activo,
+    });
+    if (!resultado.success) {
+      const nuevosErrores: Errores = {};
+      for (const issue of resultado.error.issues) {
+        const campo = issue.path[0] as keyof Errores;
+        nuevosErrores[campo] = issue.message;
+      }
+      setErrores(nuevosErrores);
+      return;
+    }
+    setErrores({});
+
     setLoading(true);
     try {
       await api.post("/habits", {
-        nombre,
-        descripcion: descripcion || undefined,
-        categoria,
-        frecuencia,
-        fechaInicio,
-        fechaFin: fechaFin || undefined,
-        activo,
+        ...resultado.data,
+        descripcion: resultado.data.descripcion || undefined,
+        fechaFin: resultado.data.fechaFin || undefined,
       });
       router.push("/habitos");
     } catch (err) {
@@ -60,7 +83,7 @@ export default function NuevoHabitoPage() {
 
   return (
     <Box sx={{ maxWidth: 700, mx: "auto" }}>
-      <Typography variant="h1" sx={{ mb: 3 }}>
+      <Typography variant="h1" sx={{ mb: 3, color: "#1A1A1A" }}>
         Nuevo hábito
       </Typography>
 
@@ -81,7 +104,8 @@ export default function NuevoHabitoPage() {
               label="Nombre"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              required
+              error={!!errores.nombre}
+              helperText={errores.nombre}
               fullWidth
             />
             <TextField
@@ -89,6 +113,8 @@ export default function NuevoHabitoPage() {
               label="Categoría"
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
+              error={!!errores.categoria}
+              helperText={errores.categoria}
               sx={{ minWidth: 200 }}
             >
               {categorias.map((c) => (
@@ -109,7 +135,7 @@ export default function NuevoHabitoPage() {
           />
 
           <Box>
-            <Typography variant="body2" sx={{ mb: 1 }}>
+            <Typography variant="body2" sx={{ mb: 1, color: "#1A1A1A" }}>
               Frecuencia
             </Typography>
             <ToggleButtonGroup
@@ -124,14 +150,15 @@ export default function NuevoHabitoPage() {
             </ToggleButtonGroup>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+          <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
             <TextField
               label="Fecha inicio"
               type="date"
               value={fechaInicio}
               onChange={(e) => setFechaInicio(e.target.value)}
               slotProps={{ inputLabel: { shrink: true } }}
-              required
+              error={!!errores.fechaInicio}
+              helperText={errores.fechaInicio}
               fullWidth
             />
             <TextField
@@ -140,18 +167,22 @@ export default function NuevoHabitoPage() {
               value={fechaFin}
               onChange={(e) => setFechaFin(e.target.value)}
               slotProps={{ inputLabel: { shrink: true } }}
+              error={!!errores.fechaFin}
+              helperText={errores.fechaFin}
               fullWidth
             />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={activo}
-                  onChange={(e) => setActivo(e.target.checked)}
-                />
-              }
-              label="Activo"
-              sx={{ whiteSpace: "nowrap" }}
-            />
+            <Box sx={{ pt: 1 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={activo}
+                    onChange={(e) => setActivo(e.target.checked)}
+                  />
+                }
+                label="Activo"
+                sx={{ whiteSpace: "nowrap" }}
+              />
+            </Box>
           </Box>
 
           <Button

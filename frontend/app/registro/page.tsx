@@ -9,25 +9,38 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import Link from "next/link";
 import { api, saveToken } from "../../lib/api";
+import { registroSchema } from "../../lib/schemas";
+
+type Errores = Partial<Record<"nombre" | "correo" | "contraseña", string>>;
 
 export default function RegistroPage() {
   const router = useRouter();
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [contraseña, setContraseña] = useState("");
+  const [errores, setErrores] = useState<Errores>({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const resultado = registroSchema.safeParse({ nombre, correo, contraseña });
+    if (!resultado.success) {
+      const nuevosErrores: Errores = {};
+      for (const issue of resultado.error.issues) {
+        const campo = issue.path[0] as keyof Errores;
+        nuevosErrores[campo] = issue.message;
+      }
+      setErrores(nuevosErrores);
+      return;
+    }
+    setErrores({});
+
     setLoading(true);
     try {
-      const data = await api.post("/auth/register", {
-        nombre,
-        correo,
-        contraseña,
-      });
+      const data = await api.post("/auth/register", resultado.data);
       saveToken(data.access_token);
       router.push("/dashboard");
     } catch (err) {
@@ -67,7 +80,8 @@ export default function RegistroPage() {
           label="Nombre"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
-          required
+          error={!!errores.nombre}
+          helperText={errores.nombre}
           fullWidth
         />
         <TextField
@@ -75,7 +89,8 @@ export default function RegistroPage() {
           type="email"
           value={correo}
           onChange={(e) => setCorreo(e.target.value)}
-          required
+          error={!!errores.correo}
+          helperText={errores.correo}
           fullWidth
         />
         <TextField
@@ -83,9 +98,9 @@ export default function RegistroPage() {
           type="password"
           value={contraseña}
           onChange={(e) => setContraseña(e.target.value)}
-          required
+          error={!!errores.contraseña}
+          helperText={errores.contraseña}
           fullWidth
-          helperText="Mínimo 6 caracteres"
         />
         <Button
           type="submit"
