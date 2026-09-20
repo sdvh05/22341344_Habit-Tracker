@@ -11,9 +11,24 @@ export class RecordsService {
     @InjectModel(HabitRecord.name) private recordModel: Model<RecordDocument>,
   ) {}
 
-  create(createRecordDto: CreateRecordDto & { usuario: string }) {
-    const created = new this.recordModel(createRecordDto);
-    return created.save();
+  //  create(createRecordDto: CreateRecordDto & { usuario: string }) {
+  //    const created = new this.recordModel(createRecordDto);
+  //    return created.save();
+  //  }
+
+  async create(createRecordDto: CreateRecordDto & { usuario: string }) {
+    const { habito, usuario, fecha, completado } = createRecordDto;
+
+    if (completado === false) {
+      await this.recordModel.deleteOne({ habito, usuario, fecha });
+      return { eliminado: true };
+    }
+
+    return this.recordModel.findOneAndUpdate(
+      { habito, usuario, fecha },
+      { $set: { completado: true } },
+      { upsert: true, new: true },
+    );
   }
 
   //findAll() {
