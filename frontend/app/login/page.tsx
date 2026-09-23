@@ -10,6 +10,7 @@ import Alert from "@mui/material/Alert";
 import Link from "next/link";
 import { api, saveToken } from "../../lib/api";
 import { loginSchema } from "../../lib/schemas";
+import EmailDomainChips from "../../components/EmailDomainChips";
 
 type Errores = Partial<Record<"correo" | "contraseña", string>>;
 
@@ -84,6 +85,8 @@ export default function LoginPage() {
           helperText={errores.correo}
           fullWidth
         />
+        <EmailDomainChips value={correo} onChange={setCorreo} />
+
         <TextField
           label="Contraseña"
           type="password"
