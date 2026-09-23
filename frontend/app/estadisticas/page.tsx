@@ -172,7 +172,7 @@ export default function EstadisticasPage() {
 
   return (
     <Box>
-      <Typography variant="h1" sx={{ mb: 3 }}>
+      <Typography variant="h1" sx={{ mb: 3, color: "#1A1A1A" }}>
         Estadísticas
       </Typography>
 
