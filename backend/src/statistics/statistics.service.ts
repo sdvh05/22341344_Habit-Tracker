@@ -28,7 +28,6 @@ export class StatisticsService {
       activo: true,
     });
 
-    //const today = toDateOnly(new Date());
     const today = localDateString(new Date());
     const todayRecords = await this.recordModel.find({
       usuario: userId,
@@ -61,19 +60,58 @@ export class StatisticsService {
               100,
           );
 
+    const totalCompletions = await this.recordModel.countDocuments({
+      usuario: userId,
+      completado: true,
+    });
+
+    const mostConsistentHabit = await this.getMostConsistentHabit(userId);
+
     return {
       activeHabits,
       completedToday,
       currentStreak,
       bestStreak,
       completionRate,
+      totalCompletions,
+      mostConsistentHabit,
     };
   }
 
-  async getMonthly(userId: string, year: number, month: number) {
-    const from = new Date(year, month - 1, 1);
-    const to = new Date(year, month, 1);
-    return this.getRangeCounts(userId, from, to);
+  private async getMostConsistentHabit(userId: string) {
+    const activeHabits = await this.habitModel.find({
+      usuario: userId,
+      activo: true,
+    });
+    if (activeHabits.length === 0) return null;
+
+    let best: { nombre: string; percent: number } | null = null;
+
+    for (const habit of activeHabits) {
+      const start = new Date(habit.fechaInicio);
+      const now = new Date();
+      const daysSinceStart = Math.max(
+        1,
+        Math.floor((now.getTime() - start.getTime()) / 86400000) + 1,
+      );
+
+      const completedDays = await this.recordModel.countDocuments({
+        usuario: userId,
+        habito: habit._id,
+        completado: true,
+      });
+
+      const percent = Math.min(
+        100,
+        Math.round((completedDays / daysSinceStart) * 100),
+      );
+
+      if (!best || percent > best.percent) {
+        best = { nombre: habit.nombre, percent };
+      }
+    }
+
+    return best;
   }
 
   async getWeekly(userId: string) {
@@ -84,6 +122,12 @@ export class StatisticsService {
       sevenDaysAgo,
       new Date(Date.now() + 86400000),
     );
+  }
+
+  async getMonthly(userId: string, year: number, month: number) {
+    const from = new Date(year, month - 1, 1);
+    const to = new Date(year, month, 1);
+    return this.getRangeCounts(userId, from, to);
   }
 
   private async getRangeCounts(userId: string, from: Date, to: Date) {

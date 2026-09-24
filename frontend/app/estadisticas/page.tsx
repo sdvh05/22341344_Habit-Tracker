@@ -18,6 +18,7 @@ import ListItemText from "@mui/material/ListItemText";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import Popover from "@mui/material/Popover";
 
 import {
@@ -35,6 +36,8 @@ interface Summary {
   currentStreak: number;
   bestStreak: number;
   completionRate: number;
+  totalCompletions: number;
+  mostConsistentHabit: { nombre: string; percent: number } | null;
 }
 
 interface Habit {
@@ -171,8 +174,8 @@ export default function EstadisticasPage() {
       bg: "warning.main",
     },
     {
-      label: "Mejor racha",
-      value: `${summary?.bestStreak ?? 0} días`,
+      label: "Total completados",
+      value: summary?.totalCompletions ?? 0,
       bg: "secondary.main",
     },
     {
@@ -192,7 +195,7 @@ export default function EstadisticasPage() {
         Estadísticas
       </Typography>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={3} sx={{ mb: 3 }}>
         {cards.map((card) => (
           <Grid key={card.label} size={{ xs: 12, md: 4 }}>
             <Paper
@@ -212,6 +215,33 @@ export default function EstadisticasPage() {
           </Grid>
         ))}
       </Grid>
+
+      {/*
+      {summary?.mostConsistentHabit && (
+        <Paper
+          sx={{
+            p: 3,
+            borderRadius: 3,
+            mb: 4,
+            bgcolor: "primary.main",
+            color: "#FFFFFF",
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <EmojiEventsIcon sx={{ fontSize: 40 }} />
+          <Box>
+            <Typography variant="body2" sx={{ opacity: 0.85 }}>
+              Tu hábito más consistente
+            </Typography>
+            <Typography variant="h1" sx={{ color: "#FFFFFF" }}>
+              {summary.mostConsistentHabit.nombre} — {summary.mostConsistentHabit.percent}%
+            </Typography>
+          </Box>
+        </Paper>
+      )}
+      */}
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>

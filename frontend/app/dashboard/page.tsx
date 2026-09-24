@@ -13,6 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 //import { api, isLoggedIn } from "../../lib/api";
+import LinearProgress from "@mui/material/LinearProgress";
 import { api, isLoggedIn, todayLocal } from "../../lib/api";
 
 interface Habit {
@@ -98,8 +99,8 @@ export default function DashboardPage() {
       bg: "secondary.main",
     },
     {
-      label: "Completados hoy",
-      value: summary?.completedToday ?? 0,
+      label: "Mejor racha",
+      value: `${summary?.bestStreak ?? 0} días`,
       bg: "success.main",
     },
     {
@@ -114,7 +115,7 @@ export default function DashboardPage() {
       <Typography variant="h1" sx={{ mb: 1, color: "#1A1A1A" }}>
         Dashboard
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+      <Typography variant="body1" sx={{ mb: 4, color: "#1A1A1A" }}>
         Resumen de tu progreso
       </Typography>
 
@@ -139,7 +140,49 @@ export default function DashboardPage() {
         ))}
       </Grid>
 
-      <Typography variant="h2" sx={{ mb: 2 }}>
+      <Paper sx={{ p: 3, borderRadius: 3, mb: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1,
+          }}
+        >
+          <Typography
+            variant="body1"
+            sx={{ color: "#1A1A1A", fontWeight: 600 }}
+          >
+            Progreso de hoy
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{ color: "#1A1A1A", fontWeight: 600 }}
+          >
+            {completedIds.size}/{habits.length}
+          </Typography>
+        </Box>
+        <LinearProgress
+          variant="determinate"
+          value={
+            habits.length === 0 ? 0 : (completedIds.size / habits.length) * 100
+          }
+          sx={{
+            height: 10,
+            borderRadius: 5,
+            bgcolor: "secondary.main",
+            "& .MuiLinearProgress-bar": {
+              bgcolor:
+                habits.length > 0 && completedIds.size === habits.length
+                  ? "success.main"
+                  : "warning.main",
+              borderRadius: 5,
+            },
+          }}
+        />
+      </Paper>
+
+      <Typography variant="h2" sx={{ mb: 2, color: "#1A1A1A" }}>
         Hábitos de hoy
       </Typography>
 
