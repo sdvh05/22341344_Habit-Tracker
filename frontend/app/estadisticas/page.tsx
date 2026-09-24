@@ -18,6 +18,8 @@ import ListItemText from "@mui/material/ListItemText";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import Popover from "@mui/material/Popover";
+
 import {
   BarChart,
   Bar,
@@ -74,6 +76,20 @@ export default function EstadisticasPage() {
   const hoy = new Date();
   const [year, setYear] = useState(hoy.getFullYear());
   const [month, setMonth] = useState(hoy.getMonth() + 1);
+
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [yearPicker, setYearPicker] = useState(year);
+
+  function abrirSelector(e: React.MouseEvent<HTMLElement>) {
+    setYearPicker(year);
+    setAnchorEl(e.currentTarget);
+  }
+
+  function seleccionarMes(m: number) {
+    setMonth(m);
+    setYear(yearPicker);
+    setAnchorEl(null);
+  }
 
   useEffect(() => {
     if (!isLoggedIn()) {
@@ -210,13 +226,87 @@ export default function EstadisticasPage() {
             <IconButton onClick={() => cambiarMes(-1)}>
               <ChevronLeftIcon />
             </IconButton>
-            <Typography variant="h2" sx={{ color: "#1A1A1A" }}>
+            <Typography
+              variant="h2"
+              onClick={abrirSelector}
+              sx={{
+                color: "#1A1A1A",
+                cursor: "pointer",
+                "&:hover": { opacity: 0.7 },
+              }}
+            >
               {nombresMes[month - 1]} {year}
             </Typography>
             <IconButton onClick={() => cambiarMes(1)}>
               <ChevronRightIcon />
             </IconButton>
           </Box>
+
+          <Popover
+            open={!!anchorEl}
+            anchorEl={anchorEl}
+            onClose={() => setAnchorEl(null)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            transformOrigin={{ vertical: "top", horizontal: "center" }}
+          >
+            <Box sx={{ p: 2, width: 260 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  mb: 1,
+                }}
+              >
+                <IconButton
+                  size="small"
+                  onClick={() => setYearPicker((y) => y - 1)}
+                >
+                  <ChevronLeftIcon />
+                </IconButton>
+                <Typography sx={{ color: "#1A1A1A", fontWeight: 600 }}>
+                  {yearPicker}
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={() => setYearPicker((y) => y + 1)}
+                >
+                  <ChevronRightIcon />
+                </IconButton>
+              </Box>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 1,
+                }}
+              >
+                {nombresMes.map((nombre, i) => {
+                  const esActual = i + 1 === month && yearPicker === year;
+                  return (
+                    <Box
+                      key={nombre}
+                      onClick={() => seleccionarMes(i + 1)}
+                      sx={{
+                        textAlign: "center",
+                        py: 1,
+                        borderRadius: 2,
+                        cursor: "pointer",
+                        bgcolor: esActual ? "primary.main" : "transparent",
+                        color: esActual ? "#FFFFFF" : "#1A1A1A",
+                        fontSize: 13,
+                        "&:hover": {
+                          bgcolor: esActual ? "primary.main" : "secondary.main",
+                        },
+                      }}
+                    >
+                      {nombre.slice(0, 3)}
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Box>
+          </Popover>
 
           <Box
             sx={{

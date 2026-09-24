@@ -22,6 +22,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/EditOutlined";
 import Link from "next/link";
 import { api, isLoggedIn } from "../../lib/api";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 interface Habit {
   _id: string;
@@ -38,6 +39,10 @@ export default function ListaHabitosPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [loading, setLoading] = useState(true);
+  const [dialogState, setDialogState] = useState<{
+    tipo: "eliminar" | "desactivar";
+    habit: Habit;
+  } | null>(null);
 
   useEffect(() => {
     if (!isLoggedIn()) {
@@ -58,25 +63,36 @@ export default function ListaHabitosPage() {
     }
   }
 
-  async function toggleActivo(habit: Habit) {
+  function pedirConfirmacion(tipo: "eliminar" | "desactivar", habit: Habit) {
+    setDialogState({ tipo, habit });
+  }
+
+  async function confirmarAccion() {
+    if (!dialogState) return;
+    const { tipo, habit } = dialogState;
+    setDialogState(null);
+
     try {
-      await api.patch(`/habits/${habit._id}`, { activo: !habit.activo });
-      setHabits((prev) =>
-        prev.map((h) =>
-          h._id === habit._id ? { ...h, activo: !h.activo } : h,
-        ),
-      );
+      if (tipo === "eliminar") {
+        await api.delete(`/habits/${habit._id}`);
+        setHabits((prev) => prev.filter((h) => h._id !== habit._id));
+      } else {
+        await api.patch(`/habits/${habit._id}`, { activo: false });
+        setHabits((prev) =>
+          prev.map((h) => (h._id === habit._id ? { ...h, activo: false } : h)),
+        );
+      }
     } catch (err) {
       console.error(err);
     }
   }
 
-  async function eliminarHabito(id: string) {
-    if (!confirm("¿Eliminar este hábito? Esta acción no se puede deshacer."))
-      return;
+  async function activarHabito(habit: Habit) {
     try {
-      await api.delete(`/habits/${id}`);
-      setHabits((prev) => prev.filter((h) => h._id !== id));
+      await api.patch(`/habits/${habit._id}`, { activo: true });
+      setHabits((prev) =>
+        prev.map((h) => (h._id === habit._id ? { ...h, activo: true } : h)),
+      );
     } catch (err) {
       console.error(err);
     }
@@ -165,7 +181,11 @@ export default function ListaHabitosPage() {
                     </IconButton>
                   </Link>
                   <IconButton
-                    onClick={() => toggleActivo(habit)}
+                    onClick={() =>
+                      habit.activo
+                        ? pedirConfirmacion("desactivar", habit)
+                        : activarHabito(habit)
+                    }
                     title={habit.activo ? "Desactivar" : "Activar"}
                   >
                     {habit.activo ? (
@@ -175,7 +195,7 @@ export default function ListaHabitosPage() {
                     )}
                   </IconButton>
                   <IconButton
-                    onClick={() => eliminarHabito(habit._id)}
+                    onClick={() => pedirConfirmacion("eliminar", habit)}
                     title="Eliminar"
                   >
                     <CloseIcon sx={{ color: "error.main" }} />
@@ -186,6 +206,26 @@ export default function ListaHabitosPage() {
           </TableBody>
         </Table>
       </Paper>
+
+      <ConfirmDialog
+        open={!!dialogState}
+        titulo={
+          dialogState?.tipo === "eliminar"
+            ? "Eliminar hábito"
+            : "Desactivar hábito"
+        }
+        mensaje={
+          dialogState?.tipo === "eliminar"
+            ? `¿Eliminar "${dialogState.habit.nombre}"? Esta acción no se puede deshacer.`
+            : `¿Desactivar "${dialogState?.habit.nombre}"? Podrás activarlo de nuevo cuando quieras.`
+        }
+        textoConfirmar={
+          dialogState?.tipo === "eliminar" ? "Eliminar" : "Desactivar"
+        }
+        colorConfirmar={dialogState?.tipo === "eliminar" ? "error" : "warning"}
+        onConfirm={confirmarAccion}
+        onCancel={() => setDialogState(null)}
+      />
     </Box>
   );
 }
